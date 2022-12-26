@@ -1,0 +1,14 @@
+name: Koth
+version: '${project.version}'
+main: com.nazarxexe.job.koth.Koth
+api-version: 1.18
+authors: [ NazarbekAlda ]
+description: aoaoaoaoao
+
+depend:
+  - PlaceholderAPI
+
+commands:
+  koth:
+    description: Debug
+    permission: nazarxexe.job.koth.admin

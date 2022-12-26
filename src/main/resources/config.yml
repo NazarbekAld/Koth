@@ -1,0 +1,52 @@
+
+# Made by NazarbekAlda!
+
+# Plugin has own placeholders!
+# %koth_king% => Current leader (PLAYER NAME)
+# %koth_timeleft% => ending left in seconds. (NUMBER)
+# %koth_player_countdown% => Time in seconds player standing on.
+# %koth_status% => Gives status about koth (TEXT active or non-active)
+
+Countdown: 600 # In seconds.
+CountdownWhenKoth: 30 # In seconds.
+
+Region: KothRegion # Region that will be KOTH. Please set up it first.
+
+
+
+# Message formatting is: Kuori adventure MiniMessage.
+# Html like.
+# Easy edit here: https://webui.adventure.kyori.net/
+
+BroadcastStart:
+  - "<green><bold>KOTH started."
+
+BroadcastNobody:
+  - "<red><bold>NOBODY WON :(((!!!"
+
+# Placeholder support here  :
+BroadcastWinner:
+  - "<RED><BOLD>%player_name% won" #  winner message.
+  - "<blue>EZZZ"
+RewardCommands:
+  - "give %player_name% diamond 1" # commands.
+
+
+
+
+
+
+
+
+# Do not touch.
+# <<Unix>> time stamp database.
+
+# Startup
+UNIXend: "0"
+# End of koth
+UNIXKothEND: "0"
+
+# Koth status
+# It helps keep timer on server restart or
+# plugin restart.
+KothRunning: false
