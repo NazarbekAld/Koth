@@ -2,10 +2,10 @@
 # Made by NazarbekAlda!
 
 # Plugin has own placeholders!
-# %koth_king% => Current leader (PLAYER NAME)
-# %koth_timeleft% => ending left in seconds. (NUMBER)
-# %koth_player_countdown% => Time in seconds player standing on.
-# %koth_status% => Gives status about koth (TEXT active or non-active)
+#  %koth_king% => Current leader (PLAYER NAME)
+#  %koth_timeleft% => Shows how much time is left to run. (NUMBER)
+#  %koth_player_countdown% => Shows how long the player stood. (NUMBER)
+#  %koth_status% => Gives status about koth (TEXT active or non-active)
 
 Countdown: 600 # In seconds.
 CountdownWhenKoth: 30 # In seconds.
