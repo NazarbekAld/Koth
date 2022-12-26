@@ -1,6 +1,7 @@
 package com.nazarxexe.job.koth.action;
 
 import com.nazarxexe.job.koth.Koth;
+import com.nazarxexe.job.koth.event.PlayerInKothEvent;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -36,6 +37,12 @@ public class Countdown extends BukkitRunnable {
                     playersIN.put(player, 1);
                 }
                 playersIN.replace(player, playersIN.get(player)+1);
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        player.getServer().getPluginManager().callEvent(new PlayerInKothEvent(player));
+                    }
+                }.runTask(plugin);
             }else {
                 if (playersIN.get(player) == null)
                     return;

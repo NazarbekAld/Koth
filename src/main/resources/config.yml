@@ -1,6 +1,8 @@
 
 # Made by NazarbekAlda!
 
+# REQUIRED: WorldGuard, PlaceholderAPI, PlaceHolderAPI extension WorldGuard.
+
 # Plugin has own placeholders!
 #  %koth_king% => Current leader (PLAYER NAME)
 #  %koth_timeleft% => Shows how much time is left to run. (NUMBER)
