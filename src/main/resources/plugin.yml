@@ -10,5 +10,5 @@ depend:
 
 commands:
   koth:
-    description: Debug
-    permission: nazarxexe.job.koth.admin
+    permission: admin.koth
+    description: Testing.

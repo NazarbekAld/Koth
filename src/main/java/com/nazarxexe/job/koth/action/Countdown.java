@@ -25,7 +25,7 @@ public class Countdown extends BukkitRunnable {
     @Override
     public void run() {
 
-        if (!(plugin.getConfig().getBoolean("KothRunning"))) {
+        if (!(kothStats.get(name))) {
             playerlist.get(name).clear();
             return;
         }
@@ -37,15 +37,19 @@ public class Countdown extends BukkitRunnable {
             }
 
             if (PlaceholderAPI.setPlaceholders(player, "%worldguard_region_name%").equalsIgnoreCase(config.getString("Region"))){
-                playerlist.get(name).putIfAbsent(player, 1);
+                if (playerlist.get(name).get(player) == null){
+                    playerlist.get(name).put(player, 1);
+                    return;
+                }
                 playerlist.get(name).replace(player, playerlist.get(name).get(player)+1);
                 new BukkitRunnable() {
                     @Override
-                    public void run() {
+                    public void run()
+                    {
                         player.getServer().getPluginManager().callEvent(new PlayerInKothEvent(player));
                     }
                 }.runTask(plugin);
-            }else {
+            } else {
                 if (playerlist.get(name).get(player) == null)
                     return;
                 playerlist.get(name).remove(player);

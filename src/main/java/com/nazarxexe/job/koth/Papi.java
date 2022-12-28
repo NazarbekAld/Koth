@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 import static com.nazarxexe.job.koth.Koth.*;
 
@@ -58,7 +59,7 @@ public class Papi extends PlaceholderExpansion {
      */
     @Override
     public String getIdentifier() {
-        return "koth_"+name;
+        return name;
     }
 
     /**
@@ -85,6 +86,9 @@ public class Papi extends PlaceholderExpansion {
         // %koth_timeleft%
         switch (identifier) {
             case "timeleft" -> {
+                if (!(config.getBoolean("KothRunning"))){
+                    ret = String.valueOf((Long.valueOf(config.getString("UNIXKothEND")) - System.currentTimeMillis())/1000);
+                }
                 ret = String.valueOf((Long.valueOf(config.getString("UNIXend")) - System.currentTimeMillis())/1000);
             }
             case "king" -> {
@@ -94,24 +98,18 @@ public class Papi extends PlaceholderExpansion {
                 ret = config.getBoolean("KothRunning") ? "active" : "non-active";
             }
             case "player_countdown" -> {
-                if (!(plugin.getConfig().getBoolean("KothRunning"))){
+                if (!(config.getBoolean("KothRunning"))){
                     ret="-1";
                 }
                 ret = String.valueOf(playerlist.get(name).get(p));
             }
             case "time" -> {
-
-                int seconds = (int) ((Integer.valueOf(config.getString("UNIXend")) - System.currentTimeMillis())/1000);
-
-                int p1 = seconds % 60;
-                int p2 = seconds / 60;
-                int p3 = p2 % 60;
-
-                p2 = p2 / 60;
-                ret = String.format("%s:%s:%s", p2,p3,p1);
-            }
-            default -> {
-                ret = "Invalid placeholder!";
+                long seconds;
+                if (!(config.getBoolean("KothRunning"))){
+                    seconds = ((Long.valueOf(config.getString("UNIXKothEND")) - System.currentTimeMillis())/1000);
+                }
+                seconds = (Long.valueOf(config.getString("UNIXend")) - System.currentTimeMillis())/1000;
+                ret = calculateTime(seconds);
             }
         }
 
@@ -126,5 +124,19 @@ public class Papi extends PlaceholderExpansion {
         Collection<Integer> l = playerlist.get(name).values();
         int w = Collections.max(l);
         return getKeyByValue(playerlist.get(name), w).getName();
+    }
+
+    private String calculateTime(long seconds) {
+        int day = (int) TimeUnit.SECONDS.toDays(seconds);
+        long hours = TimeUnit.SECONDS.toHours(seconds) - (day *24);
+
+        long minute = TimeUnit.SECONDS.toMinutes(seconds) -
+                (TimeUnit.SECONDS.toHours(seconds)* 60);
+
+        long second = TimeUnit.SECONDS.toSeconds(seconds) -
+                (TimeUnit.SECONDS.toMinutes(seconds) *60);
+
+        return "" + day + " :" + hours + " :" + minute +
+                " :" + second;
     }
 }

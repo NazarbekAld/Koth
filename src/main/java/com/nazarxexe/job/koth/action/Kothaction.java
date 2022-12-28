@@ -31,27 +31,25 @@ public class Kothaction extends BukkitRunnable {
 
     @Override
     public void run() {
-        long END = Long.valueOf(config.getString("UNIXKothEND"));
+        long END = kothTimers.get(name);
         long CURRENTTIME =System.currentTimeMillis();
 
-        if (!(plugin.getConfig().getBoolean("KothRunning"))){
+        if (!(kothStats.get(name))){
             return;
         }
 
         if (END < CURRENTTIME) {
 
             if (playerlist.get(name).isEmpty()) {
-                for (String i : plugin.getConfig().getStringList("BroadcastNobody")){
+                for (String i : config.getStringList("BroadcastNobody")){
                     plugin.getServer().broadcast(MM.deserialize(i));
                 }
                 System.out.println(playerlist.get(name).toString());
 
 
-                config.set("KothRunning", false);
-                config.set("UNIXKothEND", String.valueOf(System.currentTimeMillis() + Long.valueOf(plugin.getConfig().getString("CountdownWhenKoth")) * 1000 + Long.valueOf(plugin.getConfig().getLong("Countdown")) * 1000));
-                config.set("UNIXend", String.valueOf(System.currentTimeMillis() + Long.valueOf(plugin.getConfig().getLong("Countdown") * 1000)));
-                plugin.saveConfig();
-                plugin.reloadConfig();
+                kothStats.replace(name, false);
+                kothTimerEnds.replace(name, System.currentTimeMillis() + kothTimers.get(name) * 1000 + kothTimerEnds.get(name) * 1000);
+                kothTimers.replace(name, System.currentTimeMillis() + kothTimers.get(name) * 1000);
                 new BukkitRunnable(){
 
                     @Override
@@ -77,11 +75,9 @@ public class Kothaction extends BukkitRunnable {
                     }
                 }.runTask(plugin);
             }
-            config.set("UNIXKothEND", String.valueOf(System.currentTimeMillis() + Long.valueOf(plugin.getConfig().getString("CountdownWhenKoth")) * 1000 + Long.valueOf(plugin.getConfig().getLong("Countdown")) * 1000));
-            config.set("UNIXend", String.valueOf(System.currentTimeMillis() + Long.valueOf(plugin.getConfig().getLong("Countdown") * 1000)));
-            config.set("KothRunning", false);
-            plugin.saveConfig();
-            plugin.reloadConfig();
+            kothStats.replace(name, false);
+            kothTimerEnds.replace(name, System.currentTimeMillis() + kothTimers.get(name) * 1000 + kothTimerEnds.get(name) * 1000);
+            kothTimers.replace(name, System.currentTimeMillis() + kothTimers.get(name) * 1000);
 
             new BukkitRunnable(){
 
@@ -106,8 +102,8 @@ public class Kothaction extends BukkitRunnable {
 
             @Override
             public void run() {
-                for (String s : plugin.getConfig().getStringList("BroadcastStart")){
-                    plugin.getServer().broadcast(MM.deserialize(s).asComponent());
+                for (String s : config.getStringList("BroadcastStart")){
+                    plugin.getServer().broadcast(MM.deserialize(String.format(s, name)).asComponent());
                 }
                 new BukkitRunnable(){
                     @Override

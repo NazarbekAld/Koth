@@ -5,6 +5,9 @@ import com.nazarxexe.job.koth.action.Kothaction;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import static com.nazarxexe.job.koth.Koth.kothStats;
+import static com.nazarxexe.job.koth.Koth.kothTimers;
+
 
 public class KothTimer extends BukkitRunnable {
     Koth plugin;
@@ -18,25 +21,23 @@ public class KothTimer extends BukkitRunnable {
         this.plugin = p;
         this.action = action;
         this.name = name;
-        this.plugin.getConfig().getConfigurationSection("config");
+        this.config = this.plugin.getConfig().getConfigurationSection(name);
 
     }
 
     @Override
     public void run() {
 
-        if (plugin.getConfig().getBoolean("KothRunning")){
+        if (kothStats.get(name)){
             return;
         }
 
-        long END = Long.valueOf(plugin.getConfig().getString("UNIXend"));
+        long END = kothTimers.get(name);
         long CURRENTTIME = System.currentTimeMillis();
 
         if (END < CURRENTTIME){
-            config.set("KothRunning", true);
+            kothStats.replace(name, true);
             action.setup();
-            plugin.saveConfig();
-            plugin.reloadConfig();
             return;
         }
 
