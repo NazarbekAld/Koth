@@ -80,9 +80,16 @@
             <id>destroystokyo-repo</id>
             <url>https://repo.destroystokyo.com/content/repositories/snapshots/</url>
         </repository>
+
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <dependencies>
+
+
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
@@ -108,5 +115,7 @@
             <version>LATEST</version>
             <scope>provided</scope>
         </dependency>
+
+
     </dependencies>
 </project>

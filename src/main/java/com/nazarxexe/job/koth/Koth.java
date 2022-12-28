@@ -17,40 +17,13 @@ import java.util.*;
 
 public final class Koth extends JavaPlugin {
 
-    public static HashMap<Player, Integer> playersIN = new HashMap<>();
 
     private static Koth plugin;
 
-    private static KothTimer timer;
-
-    private static Papi PlaceH;
-    private static Kothaction action;
-
-    public static Countdown getCountdown() {
-        return countdown;
-    }
-
-    public static void setCountdown(Countdown countdown) {
-        Koth.countdown = countdown;
-    }
-
-    private static Countdown countdown;
-
-    public static KothTimer setTimer() {
-        return timer;
-    }
-
-    public static void setTimer(KothTimer timer) {
-        Koth.timer = timer;
-    }
-
-    public static Kothaction getAction() {
-        return action;
-    }
-
-    public static void setAction(Kothaction action) {
-        Koth.action = action;
-    }
+    private List<Papi> placeholders;
+    private List<Kothaction> actions;
+    private List<KothTimer> timers;
+    public static HashMap<String, HashMap<Player, Integer>> playerlist = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -83,22 +56,17 @@ public final class Koth extends JavaPlugin {
             System.out.println("Data updated.");
 
         }
-        setTimer(new KothTimer(this));
 
-        setAction(new Kothaction(this));
-        setCountdown(new Countdown(this));
-        timer.runTaskTimerAsynchronously(this, 0L, 20L);
-        action.runTaskTimerAsynchronously(this, 0L, 20L);
-        countdown.runTaskTimerAsynchronously(this, 0L, 20L);
-
-        PlaceH = new Papi(this);
-        if (PlaceH.register()){
-            System.out.println("PLACEHOLDERS REGISTERED!");
-        }else {
-            for (int i=0; i<=10; i++){
-                System.out.println("PLACEHOLDER DIDNT REGISTERED!");
-            }
+        for (String i : plugin.getConfig().getKeys(false)) {
+            placeholders.add(new Papi(this, i));
+            playerlist.put(i, new HashMap<>());
+            Kothaction c = new Kothaction(this, i);
+            actions.add(c);
+            timers.add(new KothTimer(this, c, i));
         }
+
+        actions.forEach((a) -> { a.runTaskTimerAsynchronously(this, 0L, 20L); });
+        timers.forEach((t) -> { t.runTaskTimerAsynchronously(this, 0L, 20L); });
 
         getCommand("koth").setExecutor(new CommandExecutor() {
             @Override

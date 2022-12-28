@@ -5,28 +5,33 @@ import com.nazarxexe.job.koth.event.KothEvent;
 import com.nazarxexe.job.koth.event.KothMessage;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
-import static com.nazarxexe.job.koth.Koth.getKeyByValue;
-import static com.nazarxexe.job.koth.Koth.playersIN;
+import static com.nazarxexe.job.koth.Koth.*;
 
 public class Kothaction extends BukkitRunnable {
 
     final Koth plugin;
 
-    MiniMessage MM;
+    final MiniMessage MM;
 
-    public Kothaction(Koth plugin) {
+    final String name;
+    ConfigurationSection config;
+
+    public Kothaction(Koth plugin, String name) {
         this.plugin = plugin;
+        this.name =name;
+        this.config = plugin.getConfig().getConfigurationSection(name);
         MM = MiniMessage.miniMessage();
     }
 
     @Override
     public void run() {
-        long END = Long.valueOf(plugin.getConfig().getString("UNIXKothEND"));
+        long END = Long.valueOf(config.getString("UNIXKothEND"));
         long CURRENTTIME =System.currentTimeMillis();
 
         if (!(plugin.getConfig().getBoolean("KothRunning"))){
@@ -35,23 +40,23 @@ public class Kothaction extends BukkitRunnable {
 
         if (END < CURRENTTIME) {
 
-            if (playersIN.isEmpty()) {
+            if (playerlist.get(name).isEmpty()) {
                 for (String i : plugin.getConfig().getStringList("BroadcastNobody")){
                     plugin.getServer().broadcast(MM.deserialize(i));
                 }
-                System.out.println(playersIN.toString());
+                System.out.println(playerlist.get(name).toString());
 
 
-                plugin.getConfig().set("KothRunning", false);
-                plugin.getConfig().set("UNIXKothEND", String.valueOf(System.currentTimeMillis() + Long.valueOf(plugin.getConfig().getString("CountdownWhenKoth")) * 1000 + Long.valueOf(plugin.getConfig().getLong("Countdown")) * 1000));
-                plugin.getConfig().set("UNIXend", String.valueOf(System.currentTimeMillis() + Long.valueOf(plugin.getConfig().getLong("Countdown") * 1000)));
+                config.set("KothRunning", false);
+                config.set("UNIXKothEND", String.valueOf(System.currentTimeMillis() + Long.valueOf(plugin.getConfig().getString("CountdownWhenKoth")) * 1000 + Long.valueOf(plugin.getConfig().getLong("Countdown")) * 1000));
+                config.set("UNIXend", String.valueOf(System.currentTimeMillis() + Long.valueOf(plugin.getConfig().getLong("Countdown") * 1000)));
                 plugin.saveConfig();
                 plugin.reloadConfig();
                 new BukkitRunnable(){
 
                     @Override
                     public void run() {
-                        plugin.getServer().getPluginManager().callEvent(new KothEvent(KothMessage.NON_WINNER));
+                        plugin.getServer().getPluginManager().callEvent(new KothEvent(KothMessage.NON_WINNER, name));
                     }
                 }.runTask(plugin);
                 return;
@@ -59,11 +64,11 @@ public class Kothaction extends BukkitRunnable {
             Player W = getWinner();
 
 
-            for (String e : plugin.getConfig().getStringList("BroadcastWinner")){
+            for (String e : config.getStringList("BroadcastWinner")){
 
                 plugin.getServer().broadcast(MM.deserialize(PlaceholderAPI.setPlaceholders(W, e)));
             }
-            for (String s : plugin.getConfig().getStringList("RewardCommands")){
+            for (String s : config.getStringList("RewardCommands")){
                 new BukkitRunnable(){
 
                     @Override
@@ -72,9 +77,9 @@ public class Kothaction extends BukkitRunnable {
                     }
                 }.runTask(plugin);
             }
-            plugin.getConfig().set("UNIXKothEND", String.valueOf(System.currentTimeMillis() + Long.valueOf(plugin.getConfig().getString("CountdownWhenKoth")) * 1000 + Long.valueOf(plugin.getConfig().getLong("Countdown")) * 1000));
-            plugin.getConfig().set("UNIXend", String.valueOf(System.currentTimeMillis() + Long.valueOf(plugin.getConfig().getLong("Countdown") * 1000)));
-            plugin.getConfig().set("KothRunning", false);
+            config.set("UNIXKothEND", String.valueOf(System.currentTimeMillis() + Long.valueOf(plugin.getConfig().getString("CountdownWhenKoth")) * 1000 + Long.valueOf(plugin.getConfig().getLong("Countdown")) * 1000));
+            config.set("UNIXend", String.valueOf(System.currentTimeMillis() + Long.valueOf(plugin.getConfig().getLong("Countdown") * 1000)));
+            config.set("KothRunning", false);
             plugin.saveConfig();
             plugin.reloadConfig();
 
@@ -82,7 +87,7 @@ public class Kothaction extends BukkitRunnable {
 
                 @Override
                 public void run() {
-                    plugin.getServer().getPluginManager().callEvent(new KothEvent(KothMessage.WINNER, W));
+                    plugin.getServer().getPluginManager().callEvent(new KothEvent(KothMessage.WINNER, name, W));
                 }
             }.runTask(plugin);
         }
@@ -91,9 +96,9 @@ public class Kothaction extends BukkitRunnable {
 
     private Player getWinner ()
     {
-        Collection<Integer> l = playersIN.values();
+        Collection<Integer> l = playerlist.get(name).values();
         int w = Collections.max(l);
-        return getKeyByValue(playersIN, w);
+        return getKeyByValue(playerlist.get(name), w);
     }
 
     public Kothaction setup () {
@@ -107,7 +112,7 @@ public class Kothaction extends BukkitRunnable {
                 new BukkitRunnable(){
                     @Override
                     public void run() {
-                        plugin.getServer().getPluginManager().callEvent(new KothEvent(KothMessage.START));
+                        plugin.getServer().getPluginManager().callEvent(new KothEvent(KothMessage.START, name));
                     }
                 }.runTask(plugin);
             }

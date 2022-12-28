@@ -2,13 +2,14 @@ package com.nazarxexe.job.koth;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
 import java.util.Collections;
 
-import static com.nazarxexe.job.koth.Koth.getKeyByValue;
-import static com.nazarxexe.job.koth.Koth.playersIN;
+import static com.nazarxexe.job.koth.Koth.*;
 
 /**
  * This class will automatically register as a placeholder expansion
@@ -18,9 +19,15 @@ import static com.nazarxexe.job.koth.Koth.playersIN;
 public class Papi extends PlaceholderExpansion {
 
     final Koth plugin;
+    final String name;
+    final ConfigurationSection config;
 
-    public Papi(Koth plugin) {
+
+
+    public Papi(Koth plugin, String name) {
         this.plugin = plugin;
+        this.name = name;
+        this.config = this.plugin.getConfig().getConfigurationSection(name);
     }
 
     /**
@@ -31,6 +38,7 @@ public class Papi extends PlaceholderExpansion {
      */
     @Override
     public boolean canRegister() {
+
         return true;
     }
 
@@ -50,7 +58,7 @@ public class Papi extends PlaceholderExpansion {
      */
     @Override
     public String getIdentifier() {
-        return "koth";
+        return "koth_"+name;
     }
 
     /**
@@ -77,19 +85,30 @@ public class Papi extends PlaceholderExpansion {
         // %koth_timeleft%
         switch (identifier) {
             case "timeleft" -> {
-                ret = String.valueOf((Long.valueOf(plugin.getConfig().getString("UNIXend")) - System.currentTimeMillis())/1000);
+                ret = String.valueOf((Long.valueOf(config.getString("UNIXend")) - System.currentTimeMillis())/1000);
             }
             case "king" -> {
                 ret = getWinner();
             }
             case "status" ->{
-                ret = plugin.getConfig().getBoolean("KothRunning") ? "active" : "non-active";
+                ret = config.getBoolean("KothRunning") ? "active" : "non-active";
             }
             case "player_countdown" -> {
                 if (!(plugin.getConfig().getBoolean("KothRunning"))){
                     ret="-1";
                 }
-                ret = String.valueOf(playersIN.get(p));
+                ret = String.valueOf(playerlist.get(name).get(p));
+            }
+            case "time" -> {
+
+                int seconds = (int) ((Integer.valueOf(config.getString("UNIXend")) - System.currentTimeMillis())/1000);
+
+                int p1 = seconds % 60;
+                int p2 = seconds / 60;
+                int p3 = p2 % 60;
+
+                p2 = p2 / 60;
+                ret = String.format("%s:%s:%s", p2,p3,p1);
             }
             default -> {
                 ret = "Invalid placeholder!";
@@ -101,11 +120,11 @@ public class Papi extends PlaceholderExpansion {
     }
     private String getWinner ()
     {
-        if (playersIN.isEmpty()){
+        if (playerlist.get(name).isEmpty()){
             return "";
         }
-        Collection<Integer> l = playersIN.values();
+        Collection<Integer> l = playerlist.get(name).values();
         int w = Collections.max(l);
-        return getKeyByValue(playersIN, w).getName();
+        return getKeyByValue(playerlist.get(name), w).getName();
     }
 }

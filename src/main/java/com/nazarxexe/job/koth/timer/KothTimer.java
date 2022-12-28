@@ -2,14 +2,24 @@ package com.nazarxexe.job.koth.timer;
 
 import com.nazarxexe.job.koth.Koth;
 import com.nazarxexe.job.koth.action.Kothaction;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import static com.nazarxexe.job.koth.Koth.getAction;
 
 public class KothTimer extends BukkitRunnable {
     Koth plugin;
-    public KothTimer(Koth p){
+
+    final Kothaction action;
+    final String name;
+    ConfigurationSection config;
+
+
+    public KothTimer(Koth p, Kothaction action, String name){
         this.plugin = p;
+        this.action = action;
+        this.name = name;
+        this.plugin.getConfig().getConfigurationSection("config");
+
     }
 
     @Override
@@ -23,8 +33,8 @@ public class KothTimer extends BukkitRunnable {
         long CURRENTTIME = System.currentTimeMillis();
 
         if (END < CURRENTTIME){
-            plugin.getConfig().set("KothRunning", true);
-            getAction().setup();
+            config.set("KothRunning", true);
+            action.setup();
             plugin.saveConfig();
             plugin.reloadConfig();
             return;

@@ -17,14 +17,17 @@ public class KothEvent extends Event {
 
     private Player winner;
 
-    public KothEvent(KothMessage msg) {
+    private String name;
+    public KothEvent(KothMessage msg, String name) {
         message = msg;
         winner = null;
+        this.name = name;
     }
 
-    public KothEvent(KothMessage msg, Player winner) {
+    public KothEvent(KothMessage msg, String name, Player winner) {
         message = msg;
         this.winner = winner;
+        this.name = name;
     }
 
     public KothMessage getMessageEnum(){
@@ -33,6 +36,10 @@ public class KothEvent extends Event {
 
     public String getMessageString() {
         return message.toString();
+    }
+
+    public String getKothName() {
+        return name;
     }
 
     @Override

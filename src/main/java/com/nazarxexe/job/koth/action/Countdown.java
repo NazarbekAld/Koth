@@ -3,26 +3,30 @@ package com.nazarxexe.job.koth.action;
 import com.nazarxexe.job.koth.Koth;
 import com.nazarxexe.job.koth.event.PlayerInKothEvent;
 import me.clip.placeholderapi.PlaceholderAPI;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
 
 import static com.nazarxexe.job.koth.Koth.*;
 
 public class Countdown extends BukkitRunnable {
 
     final Koth plugin;
+    final String name;
 
-    public Countdown(Koth plugin) {
+    final ConfigurationSection config;
+
+    public Countdown(Koth plugin, String name) {
         this.plugin = plugin;
+        this.name = name;
+        this.config = plugin.getConfig().getConfigurationSection(name);
     }
 
     @Override
     public void run() {
 
         if (!(plugin.getConfig().getBoolean("KothRunning"))) {
-            playersIN.clear();
+            playerlist.get(name).clear();
             return;
         }
         for (Player player : plugin.getServer().getOnlinePlayers()){
@@ -32,11 +36,9 @@ public class Countdown extends BukkitRunnable {
                 break;
             }
 
-            if (PlaceholderAPI.setPlaceholders(player, "%worldguard_region_name%").equalsIgnoreCase(plugin.getConfig().getString("Region"))){
-                if (playersIN.get(player) == null){
-                    playersIN.put(player, 1);
-                }
-                playersIN.replace(player, playersIN.get(player)+1);
+            if (PlaceholderAPI.setPlaceholders(player, "%worldguard_region_name%").equalsIgnoreCase(config.getString("Region"))){
+                playerlist.get(name).putIfAbsent(player, 1);
+                playerlist.get(name).replace(player, playerlist.get(name).get(player)+1);
                 new BukkitRunnable() {
                     @Override
                     public void run() {
@@ -44,9 +46,9 @@ public class Countdown extends BukkitRunnable {
                     }
                 }.runTask(plugin);
             }else {
-                if (playersIN.get(player) == null)
+                if (playerlist.get(name).get(player) == null)
                     return;
-                playersIN.remove(player);
+                playerlist.get(name).remove(player);
             }
         }
     }
