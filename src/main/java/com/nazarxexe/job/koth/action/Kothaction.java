@@ -1,11 +1,11 @@
 package com.nazarxexe.job.koth.action;
 
 import com.nazarxexe.job.koth.Koth;
+import com.nazarxexe.job.koth.KothService;
 import com.nazarxexe.job.koth.event.KothEvent;
 import com.nazarxexe.job.koth.event.KothMessage;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -18,38 +18,39 @@ public class Kothaction extends BukkitRunnable {
     final Koth plugin;
 
     final MiniMessage MM;
+    final KothService service;
 
     final String name;
-    ConfigurationSection config;
 
-    public Kothaction(Koth plugin, String name) {
+    public Kothaction(Koth plugin, KothService service) {
         this.plugin = plugin;
-        this.name =name;
-        this.config = plugin.getConfig().getConfigurationSection(name);
+        this.service = service;
+        this.name = service.getName();
+
         MM = MiniMessage.miniMessage();
     }
 
     @Override
     public void run() {
-        long END = kothTimers.get(name);
+        long END = service.getEnd();
         long CURRENTTIME =System.currentTimeMillis();
 
-        if (!(kothStats.get(name))){
+        if (!service.isStatus()){
             return;
         }
 
         if (END < CURRENTTIME) {
 
-            if (playerlist.get(name).isEmpty()) {
-                for (String i : config.getStringList("BroadcastNobody")){
+            if (service.getPlayersIN().isEmpty()) {
+                for (String i : service.getConfig().getStringList("BroadcastNobody")){
                     plugin.getServer().broadcast(MM.deserialize(i));
                 }
-                System.out.println(playerlist.get(name).toString());
+                System.out.println(service.getPlayersIN().toString());
 
 
-                kothStats.replace(name, false);
-                kothTimerEnds.replace(name, System.currentTimeMillis() + kothTimers.get(name) * 1000 + kothTimerEnds.get(name) * 1000);
-                kothTimers.replace(name, System.currentTimeMillis() + kothTimers.get(name) * 1000);
+                service.setStatus(false);
+                service.setEnd(System.currentTimeMillis() + service.getConfigStart() * 1000L + service.getConfigEnd() * 1000L);
+                service.setStart(System.currentTimeMillis() + service.getConfigStart() * 1000L);
                 new BukkitRunnable(){
 
                     @Override
@@ -62,11 +63,11 @@ public class Kothaction extends BukkitRunnable {
             Player W = getWinner();
 
 
-            for (String e : config.getStringList("BroadcastWinner")){
+            for (String e : service.getConfig().getStringList("BroadcastWinner")){
 
                 plugin.getServer().broadcast(MM.deserialize(PlaceholderAPI.setPlaceholders(W, e)));
             }
-            for (String s : config.getStringList("RewardCommands")){
+            for (String s : service.getConfig().getStringList("RewardCommands")){
                 new BukkitRunnable(){
 
                     @Override
@@ -75,9 +76,9 @@ public class Kothaction extends BukkitRunnable {
                     }
                 }.runTask(plugin);
             }
-            kothStats.replace(name, false);
-            kothTimerEnds.replace(name, System.currentTimeMillis() + kothTimers.get(name) * 1000 + kothTimerEnds.get(name) * 1000);
-            kothTimers.replace(name, System.currentTimeMillis() + kothTimers.get(name) * 1000);
+            service.setStatus(false);
+            service.setEnd(System.currentTimeMillis() + service.getConfigStart() * 1000L + service.getConfigEnd() * 1000L);
+            service.setStart(System.currentTimeMillis() + service.getConfigStart() * 1000L);
 
             new BukkitRunnable(){
 
@@ -92,9 +93,9 @@ public class Kothaction extends BukkitRunnable {
 
     private Player getWinner ()
     {
-        Collection<Integer> l = playerlist.get(name).values();
+        Collection<Integer> l = service.getPlayersIN().values();
         int w = Collections.max(l);
-        return getKeyByValue(playerlist.get(name), w);
+        return getKeyByValue(service.getPlayersIN(), w);
     }
 
     public Kothaction setup () {
@@ -102,7 +103,7 @@ public class Kothaction extends BukkitRunnable {
 
             @Override
             public void run() {
-                for (String s : config.getStringList("BroadcastStart")){
+                for (String s : service.getConfig().getStringList("BroadcastStart")){
                     plugin.getServer().broadcast(MM.deserialize(String.format(s, name)).asComponent());
                 }
                 new BukkitRunnable(){

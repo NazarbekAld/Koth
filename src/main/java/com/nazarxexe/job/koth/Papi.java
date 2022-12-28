@@ -3,7 +3,6 @@ package com.nazarxexe.job.koth;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
@@ -21,14 +20,16 @@ public class Papi extends PlaceholderExpansion {
 
     final Koth plugin;
     final String name;
-    final ConfigurationSection config;
+
+    final KothService service;
 
 
 
-    public Papi(Koth plugin, String name) {
+
+    public Papi(Koth plugin, String name, KothService service) {
         this.plugin = plugin;
         this.name = name;
-        this.config = this.plugin.getConfig().getConfigurationSection(name);
+        this.service = service;
     }
 
     /**
@@ -86,30 +87,33 @@ public class Papi extends PlaceholderExpansion {
         // %koth_timeleft%
         switch (identifier) {
             case "timeleft" -> {
-                if (!(config.getBoolean("KothRunning"))){
-                    ret = String.valueOf((Long.valueOf(config.getString("UNIXKothEND")) - System.currentTimeMillis())/1000);
+                if (!(service.isStatus())){
+                    ret = String.valueOf((service.getEnd() - System.currentTimeMillis()/1000));
                 }
-                ret = String.valueOf((Long.valueOf(config.getString("UNIXend")) - System.currentTimeMillis())/1000);
+                ret = String.valueOf((service.getStart() - System.currentTimeMillis())/1000);
             }
             case "king" -> {
                 ret = getWinner();
             }
             case "status" ->{
-                ret = config.getBoolean("KothRunning") ? "active" : "non-active";
+                ret = service.isStatus() ? "active" : "non-active";
             }
             case "player_countdown" -> {
-                if (!(config.getBoolean("KothRunning"))){
+                if (!(service.isStatus())){
                     ret="-1";
                 }
-                ret = String.valueOf(playerlist.get(name).get(p));
+                ret = String.valueOf(service.getPlayersIN().get(p));
             }
             case "time" -> {
                 long seconds;
-                if (!(config.getBoolean("KothRunning"))){
-                    seconds = ((Long.valueOf(config.getString("UNIXKothEND")) - System.currentTimeMillis())/1000);
+                if (!(service.isStatus())){
+                    seconds = ((service.getEnd() - System.currentTimeMillis()/1000));
                 }
-                seconds = (Long.valueOf(config.getString("UNIXend")) - System.currentTimeMillis())/1000;
+                seconds = ((service.getStart() - System.currentTimeMillis())/1000);
                 ret = calculateTime(seconds);
+            }
+            case "time_stamp" -> {
+                ret = "" + service.getStart() + "\n" + service.getEnd() + "\n" + (service.getStart() - System.currentTimeMillis()) + "\n" + (service.getEnd() - System.currentTimeMillis());
             }
         }
 
@@ -118,12 +122,12 @@ public class Papi extends PlaceholderExpansion {
     }
     private String getWinner ()
     {
-        if (playerlist.get(name).isEmpty()){
+        if (service.getPlayersIN().isEmpty()){
             return "";
         }
-        Collection<Integer> l = playerlist.get(name).values();
+        Collection<Integer> l = service.getPlayersIN().values();
         int w = Collections.max(l);
-        return getKeyByValue(playerlist.get(name), w).getName();
+        return getKeyByValue(service.getPlayersIN(), w).getName();
     }
 
     private String calculateTime(long seconds) {

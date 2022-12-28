@@ -35,16 +35,3 @@ Koth:
     - "<blue>EZZZ"
   RewardCommands:
     - "give %player_name% diamond 1" # commands.
-
-
-  # Do not touch.
-  # <<Unix>> time stamp database.
-  # Startup
-  UNIXend: "0"
-  # End of koth
-  UNIXKothEND: "0"
-
-  # Koth status
-  # It helps keep timer on server restart or
-  # plugin restart.
-  KothRunning: false

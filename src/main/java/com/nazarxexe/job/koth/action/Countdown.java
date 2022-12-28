@@ -1,6 +1,7 @@
 package com.nazarxexe.job.koth.action;
 
 import com.nazarxexe.job.koth.Koth;
+import com.nazarxexe.job.koth.KothService;
 import com.nazarxexe.job.koth.event.PlayerInKothEvent;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.configuration.ConfigurationSection;
@@ -12,21 +13,19 @@ import static com.nazarxexe.job.koth.Koth.*;
 public class Countdown extends BukkitRunnable {
 
     final Koth plugin;
-    final String name;
+    final KothService service;
 
-    final ConfigurationSection config;
 
-    public Countdown(Koth plugin, String name) {
+    public Countdown(Koth plugin, KothService service) {
+        this.service = service;
         this.plugin = plugin;
-        this.name = name;
-        this.config = plugin.getConfig().getConfigurationSection(name);
     }
 
     @Override
     public void run() {
 
-        if (!(kothStats.get(name))) {
-            playerlist.get(name).clear();
+        if (!(service.isStatus())) {
+            service.getPlayersIN().clear();
             return;
         }
         for (Player player : plugin.getServer().getOnlinePlayers()){
@@ -36,12 +35,12 @@ public class Countdown extends BukkitRunnable {
                 break;
             }
 
-            if (PlaceholderAPI.setPlaceholders(player, "%worldguard_region_name%").equalsIgnoreCase(config.getString("Region"))){
-                if (playerlist.get(name).get(player) == null){
-                    playerlist.get(name).put(player, 1);
+            if (PlaceholderAPI.setPlaceholders(player, "%worldguard_region_name%").equalsIgnoreCase(service.getConfig().getString("Region"))){
+                if (service.getPlayersIN().get(player) == null){
+                    service.getPlayersIN().put(player, 1);
                     return;
                 }
-                playerlist.get(name).replace(player, playerlist.get(name).get(player)+1);
+                service.getPlayersIN().replace(player, service.getPlayersIN().get(player)+1);
                 new BukkitRunnable() {
                     @Override
                     public void run()
@@ -50,9 +49,9 @@ public class Countdown extends BukkitRunnable {
                     }
                 }.runTask(plugin);
             } else {
-                if (playerlist.get(name).get(player) == null)
+                if (service.getPlayersIN().get(player) == null)
                     return;
-                playerlist.get(name).remove(player);
+                service.getPlayersIN().remove(player);
             }
         }
     }
