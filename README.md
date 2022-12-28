@@ -6,6 +6,6 @@ PlaceholderAPI, WorldEdit, WorldEdit Extension for placeholderapi.
 
 commands:
 ```
-/koth start [KOTH_NAME] start koth
-/koth stop [KOTH_NAME] end koth
+/koth start [KOTH_NAME]
+/koth stop [KOTH_NAME]
 ```
