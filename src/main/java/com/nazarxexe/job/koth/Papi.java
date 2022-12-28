@@ -140,7 +140,7 @@ public class Papi extends PlaceholderExpansion {
         long second = TimeUnit.SECONDS.toSeconds(seconds) -
                 (TimeUnit.SECONDS.toMinutes(seconds) *60);
 
-        return "" + day + " :" + hours + " :" + minute +
-                " :" + second;
+        return "" + day + ":" + hours + ":" + minute +
+                ":" + second;
     }
 }
